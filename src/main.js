@@ -108,7 +108,6 @@ $(function () {
 		yAxis.call(yAxisGen);
 		xAxis.call(xAxisGen);
 
-		// drugaciji shape za gender & drugacija boja za razlicite case_pathologic_stage
 		var symbol = d3.symbol();
 
 		var DOT_SHAPE = symbol.type(function ( d ) {
@@ -125,6 +124,7 @@ $(function () {
 			.data(data)
 			.enter()
 			.append("path")
+			.attr("class", "case")
 			.attr('d', DOT_SHAPE)
 			.attr("transform", function ( d ) {
 				return "translate(" + xScale(d.dtd) + "," + yScale(d.age) + ")";
@@ -137,31 +137,74 @@ $(function () {
 
 		svg.append("text")
 			.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-			.attr("transform", "translate("+ (-35) +","+(height/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+			.attr("transform", "translate(" + (-35) + "," + (height / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 			.attr('class', 'axis-label')
 			.attr('fill', 'white')
 			.text("Age at diagnosis");
 
 		svg.append("text")
 			.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-			.attr("transform", "translate("+ (width/2) +","+(height+(40))+")")  // centre below axis
+			.attr("transform", "translate(" + (width / 2) + "," + (height + (40)) + ")")  // centre below axis
 			.attr('class', 'axis-label')
 			.attr('fill', 'white')
 			.text("Days to death");
 
 
-		console.log("Max age: " + d3.max(data, function ( d ) {
-				return d.age;
-			}));
-		console.log("Min age: " + d3.min(data, function ( d ) {
-				return d.age;
-			}));
-		console.log("Max dtd: " + d3.max(data, function ( d ) {
+		/* Brush - slider - START */
+
+		var x2 = d3.scaleLinear()
+			.range([0, width])
+			.domain([d3.min(data, function ( d ) {
 				return d.dtd;
-			}));
-		console.log("Min dtd: " + d3.min(data, function ( d ) {
+			}), d3.max(data, function ( d ) {
 				return d.dtd;
-			}))
+			})]);
+
+		var brush = d3.select(".scatter-plot svg");
+
+		height = height + 120;
+
+		brush.append("g")
+			.attr("class", "axis axis--grid")
+			.attr("transform", "translate(" + margin.left + "," + height + ")")
+			.call(d3.axisBottom(x2)
+				.ticks(DEFAULTS.x_tick_count));
+
+		brush.append("g")
+			.attr("class", "axis axis--x")
+			.attr("transform", "translate(" + margin.left + "," + height + ")")
+			.call(d3.axisBottom(x2));
+
+		brush.append("g")
+			.attr("transform", "translate(" + margin.left + "," + height + ")")
+			.attr("class", "brush")
+			.call(d3.brushX()
+				.extent([[0, -50], [width, 0]])
+				.on("brush", brushended));
+
+		function brushended() {
+			if ( !d3.event.sourceEvent ) return;
+			if ( !d3.event.selection ) return;
+			var d0 = d3.event.selection.map(x2.invert, x2);
+
+			console.log("LB: " + Math.round(d0[0]));
+			console.log("UB: " + Math.round(d0[1]));
+
+			xScale.domain(d0);
+			xAxis.call(xAxisGen);
+
+			svg.selectAll(".case")
+				.attr("transform", function ( d ) {
+					return "translate(" + xScale(d.dtd) + "," + yScale(d.age) + ")";
+				})
+				.attr("visibility", function ( d ) {
+					if ( d.dtd < d0[0] || d.dtd > d0[1] )
+						return "hidden";
+					return "visible";
+				})
+		}
+
+		/* Brush - slider - END */
 	});
 
 });

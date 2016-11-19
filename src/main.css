@@ -66,6 +66,10 @@ h3 {
     color: white;
 }
 
+.axis path {
+    stroke: white;
+}
+
 /**
  * Tooltips
  */
