@@ -47,6 +47,25 @@ h3 {
 
 }
 
+.axis {
+    stroke: white;
+}
+
+.axis line {
+    fill: white;
+    stroke: white;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 10px;
+}
+
+.axis-label {
+    color: white;
+}
+
 /**
  * Tooltips
  */
