@@ -81,3 +81,26 @@ h3 {
     top: 100%;
     left: 0;
 }
+
+.axis {
+    stroke: white;
+}
+
+.axis line {
+    stroke: white;
+    fill: white;
+    shape-rendering: crispEdges;
+}
+
+.axis path{
+  	stroke: white;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 10px;
+}
+
+.axis-label {
+    color: white;
+}
